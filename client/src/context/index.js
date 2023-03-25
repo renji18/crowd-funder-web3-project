@@ -4,10 +4,10 @@ import {
   useContract,
   useMetamask,
   useContractWrite,
-  useContractRead,
 } from "@thirdweb-dev/react";
-import { ethers, logger } from "ethers";
+import { ethers } from "ethers";
 
+// Created a context and passed to ./src/index.js
 const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
@@ -27,13 +27,16 @@ export const StateContextProvider = ({ children }) => {
     "createCampaign"
   );
 
-  // accessing the address and metamask
+  // Account which is connected to the page
   const address = useAddress();
+
+  // Prompt metamask to connect to an account
   const connect = useMetamask();
 
   // custom function to send the form data to blockchain method createCampaign
   const publishCampaign = async (form) => {
     try {
+      // sending the form data to createCampaign fn of the contract
       const data = await createCampaign([
         address, // owner
         form.title, //title
@@ -49,6 +52,7 @@ export const StateContextProvider = ({ children }) => {
   };
 
   const getCampaigns = async () => {
+    // Calling the getCampaigns function of the contract
     const campaigns = await contract.call("getCampaigns");
     const parsedCampaigns = campaigns.map((campaign, i) => ({
       owner: campaign.owner,
@@ -60,37 +64,40 @@ export const StateContextProvider = ({ children }) => {
         campaign.amountCollected.toString()
       ),
       image: campaign.image,
-      pId: i,
+      pId: i, // We set a custom pId here, not set in contract so we can access a particular contract using an Id.
     }));
     return parsedCampaigns;
   };
 
   const getUserCampaigns = async () => {
+    // To access only the campaigns created by a particular user
     const allCampaigns = await getCampaigns();
     const filteredCampaigns = allCampaigns.filter(
       (campaign) => campaign.owner === address
     );
-    return filteredCampaigns
+    return filteredCampaigns;
   };
 
-  const donate = async(pId, amount) => {
-    const data = await contract.call('donateToCampaign', pId, { value: ethers.utils.parseEther(amount)})
+  const donate = async (pId, amount) => {
+    const data = await contract.call("donateToCampaign", pId, {
+      value: ethers.utils.parseEther(amount),
+    });
     return data;
-  }
+  };
 
-  const getDonations = async(pId) => {
-    const donations = await contract.call('getDonators', pId)
-    const numOfDonations = donations[0].length
+  const getDonations = async (pId) => {
+    const donations = await contract.call("getDonators", pId);
+    const numOfDonations = donations[0].length;
 
-    const parsedDonations = []
-    for(let i=0; i<numOfDonations; i++) {
+    const parsedDonations = [];
+    for (let i = 0; i < numOfDonations; i++) {
       parsedDonations.push({
         donator: donations[0][i],
-        donation: ethers.utils.formatEther(donations[1][i].toString())
-      })
+        donation: ethers.utils.formatEther(donations[1][i].toString()),
+      });
     }
-    return parsedDonations
-  }
+    return parsedDonations;
+  };
 
   return (
     <StateContext.Provider

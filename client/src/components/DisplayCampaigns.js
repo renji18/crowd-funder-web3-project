@@ -7,6 +7,7 @@ const DisplayCampaigns = ({ title, isLoading, campaigns }) => {
   const navigate = useNavigate();
 
   const handleNavigate = (campaign) => {
+    // We can pass a state directly inside navigate using this way
     navigate(`/campaign-details/${campaign.title}`, { state: campaign })
   }
 

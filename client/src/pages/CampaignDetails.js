@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ethers } from "ethers";
 import { useStateContext } from "../context";
 import CustomButton from "../components/CustomButton";
 import { calculateBarPercentage, daysLeft } from "../utils";
@@ -9,6 +8,7 @@ import CountBox from "../components/CountBox";
 import Loader from "../components/Loader";
 
 const CampaignDetails = () => {
+  // We can access the state passed to the navigate fn, using this method
   const { state } = useLocation();
   const navigate = useNavigate()
   const { getDonations, contract, address, donate } = useStateContext();
